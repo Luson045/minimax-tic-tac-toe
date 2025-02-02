@@ -44,7 +44,7 @@
 
       .board {
         display: grid;
-        grid-template-columns: repeat(3, 120px);
+        grid-template-columns: repeat(3, 160px);
         gap: 10px;
         background: rgba(255, 255, 255, 0.1);
         padding: 15px;
@@ -55,8 +55,8 @@
       }
 
       .cell {
-        width: 120px;
-        height: 120px;
+        width: 160px;
+        height: 160px;
         background: rgba(255, 255, 255, 0.05);
         border-radius: 10px;
         display: flex;
@@ -86,7 +86,13 @@
         animation: moveIn 0.3s ease-out;
         color: #ff4757;
       }
-
+      @media (max-width: 456px) {
+        .board {
+          width: 80px;
+          height: 80px;
+          font-size: 32px;
+        }
+      }
       @keyframes moveIn {
         0% {
           transform: scale(0);
@@ -121,7 +127,7 @@
 
       button {
         padding: 12px 30px;
-        font-size: 1.2rem;
+        font-size: 2.4rem;
         background: linear-gradient(45deg, #4caf50, #45a049);
         color: white;
         border: none;
@@ -169,15 +175,16 @@
     </style>
   </head>
   <body>
-    <h1>Tic Tac Toe vs AI</h1>
+    <h1>Tic Tac Toe</h1>
+    <h4>Can you win?</h4>
+    <button onclick="resetGame()">New Game</button>
     <div id="status">Your turn! (X)</div>
     <div class="board" id="board"></div>
-    <button onclick="resetGame()">New Game</button>
 
     <div class="info-section">
-      <h2>The Minimax Algorithm Explained</h2>
+      <h2>Why the computer never loses? Explained 👇</h2>
       <p>
-        The Minimax algorithm is a decision-making algorithm used in artificial
+        The computer uses Minimax algorithm, a decision-making algorithm used in artificial
         intelligence, particularly in two-player games like Tic Tac Toe. It
         works by simulating all possible game states to determine the optimal
         move, assuming both players play perfectly.
@@ -346,8 +353,6 @@
         document.getElementById("status").textContent = "Your turn! (X) 👉";
         updateBoard();
       }
-
-      // Initialize the game
       createBoard();
     </script>
   </body>
