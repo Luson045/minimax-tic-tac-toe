@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tic Tac Toe vs AI</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        color: #fff;
+        min-height: 100vh;
+        padding: 2rem;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        text-align: center;
+        background: linear-gradient(45deg, #4caf50, #45a049);
+        background-clip: red;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: glow 2s ease-in-out infinite alternate;
+      }
+
+      @keyframes glow {
+        from {
+          text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        to {
+          text-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+        }
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(3, 120px);
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 15px;
+        margin: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      }
+
+      .cell {
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cell:hover {
+        transform: scale(1.05);
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .cell.x-move::before {
+        content: "X";
+        animation: moveIn 0.3s ease-out;
+        color: #4caf50;
+      }
+
+      .cell.o-move::before {
+        content: "O";
+        animation: moveIn 0.3s ease-out;
+        color: #ff4757;
+      }
+
+      @keyframes moveIn {
+        0% {
+          transform: scale(0);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      #status {
+        font-size: 1.5rem;
+        margin: 20px;
+        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      button {
+        padding: 12px 30px;
+        font-size: 1.2rem;
+        background: linear-gradient(45deg, #4caf50, #45a049);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: "Poppins", sans-serif;
+        margin: 20px;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+      }
+
+      .info-section {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      }
+
+      .info-section h2 {
+        color: #4caf50;
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+      }
+
+      .info-section p {
+        line-height: 1.8;
+        margin-bottom: 15px;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .author {
+        text-align: right;
+        margin-top: 30px;
+        font-style: italic;
+        color: rgba(255, 255, 255, 0.7);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tic Tac Toe vs AI</h1>
+    <div id="status">Your turn! (X)</div>
+    <div class="board" id="board"></div>
+    <button onclick="resetGame()">New Game</button>
+
+    <div class="info-section">
+      <h2>The Minimax Algorithm Explained</h2>
+      <p>
+        The Minimax algorithm is a decision-making algorithm used in artificial
+        intelligence, particularly in two-player games like Tic Tac Toe. It
+        works by simulating all possible game states to determine the optimal
+        move, assuming both players play perfectly.
+      </p>
+      <p>
+        In this implementation, the algorithm recursively evaluates each
+        possible move by:
+        <br />• Simulating the move and its consequences <br />• Assigning
+        scores to terminal states (+10 for AI win, -10 for human win, 0 for
+        draw) <br />• Alternating between maximizing (AI's turn) and minimizing
+        (player's turn) <br />• Choosing the move that leads to the highest
+        score for AI
+      </p>
+      <p>
+        The depth parameter in the algorithm ensures that the AI prefers winning
+        in fewer moves when possible and delays losing as long as possible. This
+        creates an unbeatable opponent that will always force either a win or a
+        draw.
+      </p>
+      <div class="author">Created by Luson Basumatary</div>
+    </div>
+
+    <script>
+      let board = ["", "", "", "", "", "", "", "", ""];
+      const HUMAN_PLAYER = "X";
+      const AI_PLAYER = "O";
+      let gameActive = true;
+
+      function createBoard() {
+        const boardDiv = document.getElementById("board");
+        boardDiv.innerHTML = "";
+        for (let i = 0; i < 9; i++) {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.setAttribute("data-index", i);
+          cell.addEventListener("click", () => handleCellClick(i));
+          boardDiv.appendChild(cell);
+        }
+        updateBoard();
+      }
+
+      function updateBoard() {
+        const cells = document.getElementsByClassName("cell");
+        for (let i = 0; i < cells.length; i++) {
+          cells[i].className = "cell";
+          if (board[i] === HUMAN_PLAYER) {
+            cells[i].className = "cell x-move";
+          } else if (board[i] === AI_PLAYER) {
+            cells[i].className = "cell o-move";
+          }
+        }
+      }
+
+      function handleCellClick(index) {
+        if (!gameActive || board[index] !== "") return;
+
+        makeMove(index, HUMAN_PLAYER);
+        if (checkWinner(board, HUMAN_PLAYER)) {
+          endGame("You win! 🎉");
+          return;
+        }
+        if (isBoardFull(board)) {
+          endGame("It's a tie! 🤝");
+          return;
+        }
+
+        document.getElementById("status").textContent = "AI is thinking... 🤔";
+        setTimeout(() => {
+          const aiMove = findBestMove(board);
+          makeMove(aiMove, AI_PLAYER);
+
+          if (checkWinner(board, AI_PLAYER)) {
+            endGame("AI wins! 🤖");
+            return;
+          }
+          if (isBoardFull(board)) {
+            endGame("It's a tie! 🤝");
+            return;
+          }
+          document.getElementById("status").textContent = "Your turn! (X) 👉";
+        }, 500);
+      }
+
+      function makeMove(index, player) {
+        board[index] = player;
+        updateBoard();
+      }
+
+      function minimax(board, depth, isMaximizing) {
+        if (checkWinner(board, AI_PLAYER)) return 10 - depth;
+        if (checkWinner(board, HUMAN_PLAYER)) return depth - 10;
+        if (isBoardFull(board)) return 0;
+
+        if (isMaximizing) {
+          let bestScore = -Infinity;
+          for (let i = 0; i < 9; i++) {
+            if (board[i] === "") {
+              board[i] = AI_PLAYER;
+              const score = minimax(board, depth + 1, false);
+              board[i] = "";
+              bestScore = Math.max(score, bestScore);
+            }
+          }
+          return bestScore;
+        } else {
+          let bestScore = Infinity;
+          for (let i = 0; i < 9; i++) {
+            if (board[i] === "") {
+              board[i] = HUMAN_PLAYER;
+              const score = minimax(board, depth + 1, true);
+              board[i] = "";
+              bestScore = Math.min(score, bestScore);
+            }
+          }
+          return bestScore;
+        }
+      }
+
+      function findBestMove(board) {
+        let bestScore = -Infinity;
+        let bestMove = -1;
+
+        for (let i = 0; i < 9; i++) {
+          if (board[i] === "") {
+            board[i] = AI_PLAYER;
+            const score = minimax(board, 0, false);
+            board[i] = "";
+            if (score > bestScore) {
+              bestScore = score;
+              bestMove = i;
+            }
+          }
+        }
+        return bestMove;
+      }
+
+      function checkWinner(board, player) {
+        const winPatterns = [
+          [0, 1, 2],
+          [3, 4, 5],
+          [6, 7, 8],
+          [0, 3, 6],
+          [1, 4, 7],
+          [2, 5, 8],
+          [0, 4, 8],
+          [2, 4, 6],
+        ];
+
+        return winPatterns.some((pattern) =>
+          pattern.every((index) => board[index] === player)
+        );
+      }
+
+      function isBoardFull(board) {
+        return board.every((cell) => cell !== "");
+      }
+
+      function endGame(message) {
+        gameActive = false;
+        document.getElementById("status").textContent = message;
+      }
+
+      function resetGame() {
+        board = ["", "", "", "", "", "", "", "", ""];
+        gameActive = true;
+        document.getElementById("status").textContent = "Your turn! (X) 👉";
+        updateBoard();
+      }
+
+      // Initialize the game
+      createBoard();
+    </script>
+  </body>
+</html>
